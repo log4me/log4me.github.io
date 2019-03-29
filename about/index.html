@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta name="generator" content="Hexo 3.8.0">
-    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="author" content="yt.zhang">
     
@@ -12,7 +12,7 @@
     
     
     
-    <title>Focal Loss for Dense Object Detection | logme&#39;s blog</title>
+    <title>about | logme&#39;s blog</title>
     <!-- inject:style -->
     <link href="/css/style.css" rel="stylesheet" type="text/css">
     <!-- endinject -->
@@ -55,11 +55,11 @@
 
             }
         }
-    </style><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    </style>
     
 </head></html>
 <body>
-<!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="cube-body">
+<div class="cube-body">
     <nav id="cube-top-memu" class="cube-menu">
     <ul class="cube-menu-collapse">
         
@@ -163,87 +163,24 @@
     <div class="cube-content">
         <div class="cube-left">
             <div class="cube-article">
-    <h1 class="title">Focal Loss for Dense Object Detection</h1>
+    <h1 class="title">about</h1>
     
     <div class="cube-article-header">
-        <div class="cube-article-date">
+        <div class="cube-article-date page">
             <i class="cube-icon cube-icon-date" aria-hidden="true"></i>
             <!-- moment.js对象 -->
-            2019-03-21
+            2019-03-29
         </div>
-        <div class="cube-article-tags">
-    <i class="cube-icon cube-icon-tag" aria-hidden="true"></i>
-    
-</div>
     </div>
     
     <div class="cube-article-content cube-markdown">
         
-        <p>这篇文章研究了<strong>一阶段(one-stage)</strong>目标检测算法的检测性能劣于<strong>两阶段(two-stage)</strong>算法的原因—在单阶段检测算法中，<strong>前景和背景类别严重不平衡</strong>。因此文章定义了Focal Loss作为<strong>标准交叉熵（BCE）</strong>损失的改进用于解决该问题。在使用Focal Loss的基础上，作者实现了单阶段的目标检测算法RetinaNet，在具有单阶段目标检测算法的速度的基础上超过了目前SOTA的两阶段算法的准确率。</p>
-<h3 id="为什么需要Focal-Loss"><a href="#为什么需要Focal-Loss" class="headerlink" title="为什么需要Focal Loss"></a>为什么需要Focal Loss</h3><p>我们知道object detection的算法主要可以分为两大类：<strong>two-stage detector和one-stage detector</strong>。前者是指类似Faster RCNN，RFCN这样需要region proposal的检测算法，这类算法可以达到很高的准确率，但是速度较慢。虽然可以通过减少proposal的数量或降低输入图像的分辨率等方式达到提速，但是速度并没有质的提升。后者是指类似YOLO，SSD这样不需要region proposal，直接采用回归算法的检测算法，这类算法速度很快，但是准确率不如前者。作者认为之所以one-stage detector的准确率不高，核心的问题是在这些算法的候选框中前景和背景的数目季度不平衡。在Yolo v2中，最后一层的输出为13x13x5，包含845个候选目标，但是在Ground Truth中只会有几个目标，因此有着严重的类别不平衡问题。</p>
-<p>在这些候选目标中，由于很大一部分是负样本，即使负样本中有很多样本的分类效果已经较好，但是累加起来仍然会占据很大的比重，淹没那些难以分类的样本，使得有用的梯度信息被淹没在这些分类效果较好的样本中。</p>
-<h3 id="Focal-Loss的形式"><a href="#Focal-Loss的形式" class="headerlink" title="Focal Loss的形式"></a>Focal Loss的形式</h3><h4 id="Cross-Entropy-Loss"><a href="#Cross-Entropy-Loss" class="headerlink" title="Cross Entropy Loss"></a>Cross Entropy Loss</h4><p>Focal Loss来源于交叉熵(CE)损失：</p>
-<p>​            $$CE(p,y) = \begin{cases}-log(p), &amp; y = 1 \cr -log(1-p), &amp; otherwise.  \end{cases}$$</p>
-<p>如果是多分类问题，则:</p>
-<p>​            $$CE(p, y) = -log(p_y)​$$</p>
-<h4 id="Balanced-Cross-Entropy-Loss"><a href="#Balanced-Cross-Entropy-Loss" class="headerlink" title="Balanced Cross Entropy Loss"></a>Balanced Cross Entropy Loss</h4><p>为了解决类别不平衡的问题，有人提出了Balances Cross Entropy Loss, $\alpha$-balanced CE loss:</p>
-<p>​            $$CE(p_t) = - \alpha_tlog(p_t), \alpha \in [0, 1]$$</p>
-<h4 id="Focal-Loss"><a href="#Focal-Loss" class="headerlink" title="Focal Loss"></a>Focal Loss</h4><p>虽然$\alpha$-balanced loss用于解决类别不平衡的问题，但是不能够分辨容易/困难的样本，因此作者在交叉熵的基础上添加了调节因子$(1-p_t)^\gamma,\gamma \ge0$作为Focal Loss:</p>
-<p>​        $$FL(p_t) = -(1-p_t)^\gamma log(p_t)$$</p>
-<p>添加了调节因子之后，对于容易分类的样本$p_t$较大，则其产生的loss越小。在实际的应用中，作者对Focal loss也采用$\alpha​$-balanced变形，在作者的实验中，该操作能够轻微的提高模型的准确率。</p>
-<p>(Focal loss的具体形式不是很重要，作者在附录中也给出了其他形式的定义。)</p>
-<h3 id="Focal-Loss的有效性"><a href="#Focal-Loss的有效性" class="headerlink" title="Focal Loss的有效性"></a>Focal Loss的有效性</h3><p><img src="/Users/logme/Library/Application Support/typora-user-images/image-20190325212325382.png" alt="image-20190325212325382"></p>
-<p>上图是在一个训练好的模型中累计损失的分布，左边的为positive样本的分布，右边的为负样本的分布。在正样本中，20%的难以分类的数据占据了大约一半的loss，并且随着$\gamma $的增加，难以分类的loss所占比重逐渐增加，但是变化幅度不大。在负样本的分布中，在$ \gamma$为0是，分布和正样本的分布相似，但是随着$ \gamma $的增加，负样本中难以分类的样本的loss所占的比重急速上升，在$\gamma$为2时，几乎占据了所有的loss。在正常的BCE损失中，$\gamma$为0，负样本中的容易分类的loss主导了梯度的方向，造成了单阶段检测器性能的下降。在$\gamma$为2时，负样本中的大部分样本的损失可以忽略，只剩下负样本中难以分类的样本，难以分类的样本能够主导训练的梯度，能够改善类别不平衡的问题。</p>
-<h3 id="和OHEM-Online-Hard-Example-Mining-以及Hinge的对比"><a href="#和OHEM-Online-Hard-Example-Mining-以及Hinge的对比" class="headerlink" title="和OHEM(Online Hard Example Mining)以及Hinge的对比"></a>和OHEM(Online Hard Example Mining)以及Hinge的对比</h3><h4 id="OHEM"><a href="#OHEM" class="headerlink" title="OHEM"></a>OHEM</h4><p>OHEM使用high-loss样本用于构建minibatches，通常用于两阶段检测器中。在OHEM中，每个样本通过其loss被评分，然后使用nms算法，再通过产生high-loss的样本构建minibatches。在构建的过程中nms threshold和batch size是可调节参数。OHEM也强调被错误分类的样本，和FL不同的是OHEM算法直接忽略了容易的样本。在作者的试样中，FL获得了比OHEM更高的准确率，表明相对于OHEM，FL更加的适用于Dense Detector中。</p>
-<h4 id="Hinge-Loss"><a href="#Hinge-Loss" class="headerlink" title="Hinge Loss"></a>Hinge Loss</h4><p>Hinge Loss用于SVM中，形式为：</p>
-<p>​        $$L(y, y’) = max(0, margin - (y - y’))  = max(0, margin + y’ - y) $$</p>
-<p>在作者的实验中采用hinge Loss不能获得稳定的有意义的结果。</p>
-<hr>
-<h3 id="RetinaNet-Detector"><a href="#RetinaNet-Detector" class="headerlink" title="RetinaNet Detector"></a>RetinaNet Detector</h3><p>为了验证作者的想法，作者基于ResNet和FPN实现了RetinaNet目标检测算法。</p>
-<p><img src="/Users/logme/Library/Application Support/typora-user-images/image-20190325223600142.png" alt="image-20190325223600142"></p>
-<p>RetinaNet采用由ResNet构建的FPN作为骨干网络，另外添加两个子网络用于分类和回归。第一个子网络以骨干网络的输出做分类，第二个子网络执行回归操作。</p>
-<h4 id="FPN-Backbone"><a href="#FPN-Backbone" class="headerlink" title="FPN Backbone"></a>FPN Backbone</h4><p>作者采用FPN作为基础网络，FPN可以改进单张输入图片的多尺度信息，</p>
-<h4 id="Anchors"><a href="#Anchors" class="headerlink" title="Anchors"></a>Anchors</h4><h4 id="Classification-Subnet"><a href="#Classification-Subnet" class="headerlink" title="Classification Subnet"></a>Classification Subnet</h4><h4 id="Box-Reggression-Subnet"><a href="#Box-Reggression-Subnet" class="headerlink" title="Box Reggression Subnet"></a>Box Reggression Subnet</h4><h4 id="Initialization"><a href="#Initialization" class="headerlink" title="Initialization"></a>Initialization</h4><h4 id="Optimization"><a href="#Optimization" class="headerlink" title="Optimization"></a>Optimization</h4>
+        <p>&lt;!DOCTYPE html&gt;</p>
+<p><html lang="en"><br>    <head><meta name="generator" content="Hexo 3.8.0"><br>        <meta charset="UTF-8"><br>        <title>404</title><br>    </head><br>    <body><br>        <script type="text/javascript" src="//qzonestyle.gtimg.cn/qzone/hybrid/app/404/search_children.js" charset="utf-8"></script><br>    </body></html></p>
+<h2 id><a href="#" class="headerlink" title></a></h2>
     </div>
 </div>
 
-<div class="cube-article-nav">
-    <ul>
-        
-        
-        <li class="next">
-            <a href="/2019/03/20/m2det/">
-                M2Det, A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network
-                <i class="cube-icon cube-next" aria-hidden="true"></i>
-            </a>
-        </li>
-        
-    </ul>
-</div>
-
-
-<!-- TODO 根据theme.comment的内容进行入口选择 -->
-
-    <!-- 因为gitment里面也有gitment-container，所以这里就改为gitment-comment -->
-<div class="gitment-comment">
-    <div id="container"></div>
-</div>
-<link rel="stylesheet" href="https://log4me.github.io/css/gitment.css">
-<script src="https://log4me.github.io/js/gitment.js"></script>
-<script>
-    var gitment = new Gitment({
-        // id default is location.href
-        owner: 'log4me',
-        repo: 'log4me.github.io',
-        oauth: {
-            client_id: '9e1e30eb87bd243c592c',
-            client_secret: '559c1909a5859a8587dd34bf78947d87cc115e7b',
-        },
-    })
-    gitment.render('container')
-</script>
-
-    
 
 
         </div>
@@ -438,6 +375,6 @@ Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>.&nbsp;Theme by <a
 <!-- inject:script -->
 <script src="/js/script.js"></script>
 <!-- endinject -->
-<div class="cube-loading out"></div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<div class="cube-loading out"></div>
 </body>
 </html>
