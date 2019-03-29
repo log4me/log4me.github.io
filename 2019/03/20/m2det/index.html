@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="author" content="yt.zhang">
+    
+    <meta name="description" content="log what I am interested.">
+    
+    
+    
+    
+    
+    
+    <title>M2Det, A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network | logme&#39;s blog</title>
+    <!-- inject:style -->
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <!-- endinject -->
+    <style>
+        .cube-loading {
+            top: 0;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: url('/images/lg/loading.gif') no-repeat center center;
+            background-color: rgba(0,0,0,.7);
+        }
+
+        .cube-loading.out {
+            display: none;
+        }
+
+        .cube-loading:before {
+            display: block;
+            content: 'Loading';
+            position: relative;
+            width: 100%;
+            top: 50%;
+            right: -50%;
+            color: #fff;
+        }
+
+        @media(max-width: 768px) {
+            .cube-loading:before {
+                font-size: 1.2em;
+                transform: translate(-24px,20px);
+                -webkit-transform: translate(-24px,20px);
+                -o-transform: translate(-24px,20px);
+                -ms-transform: translate(-24px,20px);
+            }
+        }
+
+        @media(min-width: 768px) {
+            .cube-loading:before {
+
+            }
+        }
+    </style><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+</head></html>
+<body>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="cube-body">
+    <nav id="cube-top-memu" class="cube-menu">
+    <ul class="cube-menu-collapse">
+        
+        <li>
+            <i class="cube-icon cube-icon-home" aria-hidden="true"></i>
+            <a href="/">首页</a>
+        </li>
+        
+        <li>
+            <i class="cube-icon cube-icon-archive" aria-hidden="true"></i>
+            <a href="/archives">归档</a>
+        </li>
+        
+        <li>
+            <i class="cube-icon cube-icon-categories" aria-hidden="true"></i>
+            <a href="/categories">分类</a>
+        </li>
+        
+        <li>
+            <i class="cube-icon cube-icon-tags" aria-hidden="true"></i>
+            <a href="/tags">标签</a>
+        </li>
+        
+        <li>
+            <i class="cube-icon cube-icon-about" aria-hidden="true"></i>
+            <a href="/about-me">关于我</a>
+        </li>
+        
+    </ul>
+</nav>
+<nav class="cube-side-menu" id="cube-side-menu">
+    <ul class="cube-menu-list">
+        
+        <li>
+            <a class="lrc-control">Open Lyrics</a>
+        </li>
+        
+        <li>
+            <a class="scroll-to-top">Top</a>
+        </li>
+    </ul>
+</nav>
+    <header class="cube-header" id="cube-header">
+    <img src=" /images/background.jpg " alt="头部背景图片">
+    
+    <div class="cube-type">
+        <span class="cube-typed-title">logme&#39;s blog</span>
+        <span class="cube-typed-cursor">|</span>
+    </div>
+    
+</header>
+
+    <style>
+        nav.cube-menu:before {
+            content: '';
+            visibility: hidden;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 44px;
+        
+            filter: blur(5px);
+            -webkit-filter: blur(5px);
+        
+            z-index: -1;
+            background-image: url('/images/background.jpg');
+            background-repeat: no-repeat;
+            background-position: center -356px;
+            background-size: cover;
+            background-color: transparent;
+        }
+
+        header.cube-background.cube-header-background {
+            visibility: hidden;
+            background-image: url('/images/background.jpg');
+            background-position: center -400px;
+        }
+    </style>
+    <header class="cube-background cube-header-background">
+        
+        <div class="cube-type">
+            <span class="cube-typed-title">logme&#39;s blog</span>
+            <span class="cube-typed-cursor">|</span>
+        </div>
+        
+    </header>
+    <div class="load-header-background"></div>
+    <script>
+        (function (window) {
+
+            window.headerModule = {}
+            window.headerModule.image = {
+                width: '2000',
+                height: '1414'
+            }
+
+        })(window)
+    </script>
+    
+    <div class="cube-content">
+        <div class="cube-left">
+            <div class="cube-article">
+    <h1 class="title">M2Det, A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network</h1>
+    
+    <div class="cube-article-header">
+        <div class="cube-article-date">
+            <i class="cube-icon cube-icon-date" aria-hidden="true"></i>
+            <!-- moment.js对象 -->
+            2019-03-20
+        </div>
+        <div class="cube-article-tags">
+    <i class="cube-icon cube-icon-tag" aria-hidden="true"></i>
+    
+</div>
+    </div>
+    
+    <div class="cube-article-content cube-markdown">
+        
+        <h2 id="研究出发点"><a href="#研究出发点" class="headerlink" title="研究出发点"></a>研究出发点</h2><p><strong>特征金字塔</strong>(Feature pyramids)可以减轻<strong>目标实例大小多变</strong>的问题，广泛地运用于主流的目标检测器中(如<code>DSSD</code>, <code>RetinaNet</code>, <code>RefineDet</code>, <code>Mask R-CNN</code>, <code>DetNet</code>)，虽然使用特征金字塔使这些目标检测器获得了不错的效果，但是作者认为目前金字塔的设计都是基于固有的、应用于分类任务中的多尺度特征的简单融合，在目标检测任务中有一定的限制，因此作者提出了新的多等级特征金字塔网络，并且在<code>SSD</code>的基础上采用该金字塔网络，单模型的mAP达到了41%。</p>
+<p><img src="/2019/03/20/m2det/fpns.png" alt="image-20190320200112418"></p>
+<p>四种常用的特征金字塔，a是<code>SSD</code>中采用的特征金字塔，b是<code>FPN</code>中的特征金字塔，<code>c</code>是<code>STDN</code>中的特征金字塔，d是本文提出的方法<code>MLFPN</code></p>
+<h2 id="具体方法"><a href="#具体方法" class="headerlink" title="具体方法"></a>具体方法</h2><p>模型的总体框架图如下(VGG作为基础网络)：</p>
+<p><img src="/2019/03/20/m2det/framework.png" alt="image-20190320200701601"></p>
+<ol>
+<li><p><code>FFMv1</code>模块用于融合主网络的输出。<code>FFMv1</code>模块的输入为基础网络的较深层和较浅层的大小不同的特征图，用于提供多级的语义信息(multi-level semantic information)，<code>FFMv1</code>模块首先采用<code>1x1</code>的卷积核用于降低特征图的维度，然后对较小的特征图进行<strong>上采样</strong>，最后在通道方向拼接两个特征图，获得Base Feature，作为MLFPN的输入。</p>
+<p><img src="/2019/03/20/m2det/ffmv1.png" alt="image-20190320204301694"></p>
+</li>
+<li><p><code>TUM</code>模块用于获得<strong>更深层次的语义信息</strong>(深层通常有更强的语义信息)和<strong>浅层的定位信息</strong>。<code>TUM</code>模块产生一些具有不同规模的特征图。<code>TUM</code>模块可以有多级，其中第一级别的<code>TUM</code>的输入信息只来源于Base Feature，第2级别之后的TUM的输入为上一级别的<code>TUM</code>模块的输出的最大的feature map和Base Feature拼接后的结果(使用FFMv2模块进行拼接)。</p>
+<p><img src="/2019/03/20/m2det/tum.png" alt="image-20190320211157729"></p>
+<p><code>TUM</code>模块首先采用卷积层进行下采样，然后采用Blinear插值的方向进行下采样，然后把整个过程中的相同大小的Feature Map进行逐元素相加，再采用<code>1x1</code>大小的卷积核进行降维获取特征金字塔。</p>
+</li>
+<li><p><code>FFMv2</code>模块用于融合<code>TUM</code>输出的最大的feature map和Base Feature，采用<code>1x1</code>的卷积核进行降维使用拼接操作进行融合。<img src="/2019/03/20/m2det/ffmv2.png" alt="image-20190320212756577"></p>
+</li>
+<li><p>Base Feature经过<code>TUM</code>之后，形成了<strong>多尺度(特征图大小)多层次(深度)（multi-scale and multi-scale)</strong>的特征金字塔信息，使用<code>SFAM</code><strong>(Scale-wise Feature Aggregation Module)</strong>对不同尺度的特征进行重组和融合。基本操作是对不同深度<code>TUM</code>的输出，将相同尺度的特征进行concat，然后使用<strong>SE Attention</strong>对不同通道进行加权，得到最后的输出。</p>
+<p><img src="/2019/03/20/m2det/sfam.png" alt="image-20190320213704337"></p>
+</li>
+</ol>
+<h2 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h2><ol>
+<li><p>不同模型的实验结果</p>
+<p><img src="/2019/03/20/m2det/benchmark.png" alt="image-20190320214049799"></p>
+</li>
+<li><p>速度</p>
+</li>
+</ol>
+<p><img src="/2019/03/20/m2det/times.png" alt="image-20190320214107112"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>MLFPN可以作为一种结合<strong>低层定位信息</strong>和<strong>高层语义信息</strong>的方法，可以应用于目标检测和语义分割等既需要语义信息，又需要位置信息的应用。</li>
+<li>在<strong>多层次</strong>方面，使用<code>FFMv2</code>模块对<code>TUM</code>的特征和Base Feature的融合过程中，能否提出更有效的融合方式，比如考虑细节复杂的物体主要存在于更深层次中，在深层特征中减小浅层存在物体的权重。</li>
+<li>能否直接使用<code>TUM</code>模块对图片进行特征提取？</li>
+</ol>
+
+    </div>
+</div>
+
+<div class="cube-article-nav">
+    <ul>
+        
+        <li class="prev">
+            <a href="/2019/03/21/focal-loss/">
+                <i class="cube-icon cube-prev" aria-hidden="true"></i>
+                Focal Loss for Dense Object Detection
+            </a>
+        </li>
+        
+        
+        <li class="next">
+            <a href="/2019/03/19/hello-world/">
+                Hello World
+                <i class="cube-icon cube-next" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+<!-- TODO 根据theme.comment的内容进行入口选择 -->
+
+    <!-- 因为gitment里面也有gitment-container，所以这里就改为gitment-comment -->
+<div class="gitment-comment">
+    <div id="container"></div>
+</div>
+<link rel="stylesheet" href="https://log4me.github.io/css/gitment.css">
+<script src="https://log4me.github.io/js/gitment.js"></script>
+<script>
+    var gitment = new Gitment({
+        // id default is location.href
+        owner: 'log4me',
+        repo: 'log4me.github.io',
+        oauth: {
+            client_id: '9e1e30eb87bd243c592c',
+            client_secret: '559c1909a5859a8587dd34bf78947d87cc115e7b',
+        },
+    })
+    gitment.render('container')
+</script>
+
+    
+
+
+        </div>
+        <div class="cube-right">
+            
+
+<div class="cube-search cube-sidebar" id="cube-search">
+    <div class="search-container">
+        <input type="text" placeholder="Search" class="cube-search-input" id="cube-search-input">
+        <i class="cube-icon cube-icon-search cube-search-submit" aria-hidden="true"></i>
+    </div>
+    <!-- TODO 通过给window赋一个全局变量，通过脚本赋值 -->
+</div>
+<script>
+    (function (window) {
+        'use strict';
+        window.searchModule = {}
+        window.searchModule.JSONUrl = '/content.json'
+        window.searchModule.rootUrl = '/'
+    })(window)
+</script>
+<div class="cube-search-form">
+    <div class="cube-search-control">
+        <input type="text" placeholder="Search" class="search-input">
+        <a class="close-button">
+            <i class="cube-icon cube-close" aria-hidden="true"></i>
+        </a>
+    </div>
+    <div class="cube-search-result"></div>
+</div>
+
+
+<div class="cube-author cube-sidebar" id="cube-author">
+    
+    
+    <style>
+        @media(min-width: 768px) {
+            .cube-author img {
+                margin-top: 40px;
+                margin-bottom: 10px;
+            }
+        }
+        @media(max-width: 1120px) and (min-width: 768px) {
+            .cube-author img {
+                width: 128px;
+                height: 128px;
+            }
+        }
+        @media(min-width: 1120px) {
+            .cube-author img {
+                width: 160px;
+                height: 160px;
+            }
+        }
+    </style>
+    
+    <img src="/images/avatar.jpg" alt="avatar" class="cube-avatar">
+    
+    
+    <span>yt.zhang</span>
+    
+    
+    <a title="log what I am interested.">log what I am interested.</a>
+    
+    <div class="count">
+        <a class="count articles"><span>3</span>Article</a>
+        <a class="count tags"><span>0</span>Tags</a>
+        <a class="count categories"><span>0</span>Categories</a>
+    </div>
+</div>
+
+
+
+<div class="cube-music cube-sidebar" id="cube-music">
+    <div class="cube-player aplayer" id="cube-player"></div>
+</div>
+<script>
+    (function (window) {
+        window.musicModule = {}
+        window.musicModule.musicConfig = '{"narrow":false,"autoplay":false,"showlrc":3,"theme":"#b7daff","mutex":true,"mode":"circulation","preload":"auto","listmaxheight":"513px","music":[{"title":"月灯りふんわり落ちてく","author":"小川七生","url":"http://log4me.github.io/images/music/%E6%9C%88%E7%81%AF%E3%82%8A%E3%81%B5%E3%82%93%E3%82%8F%E3%82%8A%E8%90%BD%E3%81%A1%E3%81%A6%E3%81%8F%E3%82%8B%E5%A4%9C.mp3","lrc":"https://log4me.github.io/lrc/月灯りふんわり落ちてくる夜.lrc","pic":"http://log4me.github.io/images/music/%E6%9C%88%E7%81%AF%E3%82%8A%E3%81%B5%E3%82%93%E3%82%8F%E3%82%8A%E8%90%BD%E3%81%A1%E3%81%A6%E3%81%8F%E3%82%8B%E5%A4%9C.jpg"}]}'
+        window.musicModule.lrcConfig = {
+            open: 'Open Lyrics',
+            close: 'Close Lyrics'
+        }
+    })(window)
+</script>
+
+
+
+<div class="cube-recent-posts cube-sidebar" id="cube-recent-posts">
+    <div class="title">
+        <a>Recent Posts</a>
+    </div>
+    <ul class="list">
+        
+        
+        <li>
+            <!-- TODO 如果文章要显示图片，那么在front-matter上添加preview属性(url or path) -->
+            
+            <div class="normal">
+                <p class="index first">
+                    <span>1</span>
+                </p>
+                <p class="title">
+                    <a href="/2019/03/21/focal-loss/" title="Focal Loss for Dense Object Detection">Focal Loss for Dense Object Detection</a>
+                </p>
+            </div>
+            
+        </li>
+        
+        
+        
+        <li>
+            <div class="normal">
+                <p class="index">
+                    <span>2</span>
+                </p>
+                <p class="title">
+                    <a href="/2019/03/20/m2det/" title="M2Det, A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network">M2Det, A Single-Shot Object Detector based on Multi-Level Feature Pyramid Network</a>
+                </p>
+            </div>
+        </li>
+        
+        
+        
+        <li>
+            <div class="normal">
+                <p class="index">
+                    <span>3</span>
+                </p>
+                <p class="title">
+                    <a href="/2019/03/19/hello-world/" title="Hello World">Hello World</a>
+                </p>
+            </div>
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+
+
+
+
+
+<div class="cube-links cube-sidebar" id="cube-links">
+    <div class="title">
+        <a>Links</a>
+    </div>
+    <ul class="list">
+        
+        <li>
+            
+            
+            <img src="/images/avatar.jpg">
+            
+            <a href="https://github.com/log4me" target="_blank">GitHub</a>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+<div class="cube-friend-links cube-sidebar" id="cube-friend-links">
+    <div class="title">
+        <a>Friend Links</a>
+    </div>
+    <ul class="list">
+        
+        <li>
+            <!-- TODO change avatar.png to friend.png-->
+            <img src="/images/friend_links.jpg ">
+            <a href="https://mt-cly.github.io" target="_blank">李先森的CV小屋</a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+    </div>
+</div>
+<footer class="cube-footer">
+    
+© 2017 yt.zhang
+
+<br>
+Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>.&nbsp;Theme by <a href="https://github.com/ZEROKISEKI" target="_blank">AONOSORA</a>
+</footer>
+<!-- inject:script -->
+<script src="/js/script.js"></script>
+<!-- endinject -->
+<div class="cube-loading out"></div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>
