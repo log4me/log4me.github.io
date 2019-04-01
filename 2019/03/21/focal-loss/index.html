@@ -185,7 +185,7 @@
 <h3 id="Focal-Loss的形式"><a href="#Focal-Loss的形式" class="headerlink" title="Focal Loss的形式"></a>Focal Loss的形式</h3><h4 id="Cross-Entropy-Loss"><a href="#Cross-Entropy-Loss" class="headerlink" title="Cross Entropy Loss"></a>Cross Entropy Loss</h4><p>Focal Loss来源于交叉熵(CE)损失：</p>
 <p>​            $$CE(p,y) = \begin{cases}-log(p), &amp; y = 1 \cr -log(1-p), &amp; otherwise.  \end{cases}$$</p>
 <p>如果是多分类问题，则:</p>
-<p>​            $$<br>                CE(p, y) = -log(p_y)​<br>            $$</p>
+<p>​            $$CE(p, y) = -log(p_y)​$$</p>
 <h4 id="Balanced-Cross-Entropy-Loss"><a href="#Balanced-Cross-Entropy-Loss" class="headerlink" title="Balanced Cross Entropy Loss"></a>Balanced Cross Entropy Loss</h4><p>为了解决类别不平衡的问题，有人提出了Balances Cross Entropy Loss, $\alpha$-balanced CE loss:</p>
 <p>​            $$CE(p_t) = - \alpha_tlog(p_t), \alpha \in [0, 1]$$</p>
 <h4 id="Focal-Loss"><a href="#Focal-Loss" class="headerlink" title="Focal Loss"></a>Focal Loss</h4><p>虽然$\alpha$-balanced loss用于解决类别不平衡的问题，但是不能够分辨容易/困难的样本，因此作者在交叉熵的基础上添加了调节因子$(1-p_t)^\gamma,\gamma \ge0$作为Focal Loss:</p>
