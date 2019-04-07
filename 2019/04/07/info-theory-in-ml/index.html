@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="author" content="yt.zhang">
+    
+    <meta name="description" content="log what I am interested.">
+    
+    
+    
+    
+    
+    
+    <title>机器学习中的信息论 | logme&#39;s blog</title>
+    <!-- inject:style -->
+    <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <!-- endinject -->
+    <style>
+        .cube-loading {
+            top: 0;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: url('/images/lg/loading.gif') no-repeat center center;
+            background-color: rgba(0,0,0,.7);
+        }
+
+        .cube-loading.out {
+            display: none;
+        }
+
+        .cube-loading:before {
+            display: block;
+            content: 'Loading';
+            position: relative;
+            width: 100%;
+            top: 50%;
+            right: -50%;
+            color: #fff;
+        }
+
+        @media(max-width: 768px) {
+            .cube-loading:before {
+                font-size: 1.2em;
+                transform: translate(-24px,20px);
+                -webkit-transform: translate(-24px,20px);
+                -o-transform: translate(-24px,20px);
+                -ms-transform: translate(-24px,20px);
+            }
+        }
+
+        @media(min-width: 768px) {
+            .cube-loading:before {
+
+            }
+        }
+    </style><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+    
+</head></html>
+<body>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="cube-body">
+    <nav id="cube-top-memu" class="cube-menu">
+    <ul class="cube-menu-collapse">
+        
+        <li>
+            <i class="cube-icon cube-icon-home" aria-hidden="true"></i>
+            <a href="/">首页</a>
+        </li>
+        
+        <li>
+            <i class="cube-icon cube-icon-archive" aria-hidden="true"></i>
+            <a href="/archives">归档</a>
+        </li>
+        
+        <li>
+            <i class="cube-icon cube-icon-categories" aria-hidden="true"></i>
+            <a href="/categories">分类</a>
+        </li>
+        
+        <li>
+            <i class="cube-icon cube-icon-tags" aria-hidden="true"></i>
+            <a href="/tags">标签</a>
+        </li>
+        
+        <li>
+            <i class="cube-icon cube-icon-about" aria-hidden="true"></i>
+            <a href="/about-me">关于我</a>
+        </li>
+        
+    </ul>
+</nav>
+<nav class="cube-side-menu" id="cube-side-menu">
+    <ul class="cube-menu-list">
+        
+        <li>
+            <a class="lrc-control">Open Lyrics</a>
+        </li>
+        
+        <li>
+            <a class="scroll-to-top">Top</a>
+        </li>
+    </ul>
+</nav>
+    <header class="cube-header" id="cube-header">
+    <img src=" /images/background.jpg " alt="头部背景图片">
+    
+    <div class="cube-type">
+        <span class="cube-typed-title">logme&#39;s blog</span>
+        <span class="cube-typed-cursor">|</span>
+    </div>
+    
+</header>
+
+    <style>
+        nav.cube-menu:before {
+            content: '';
+            visibility: hidden;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 44px;
+        
+            filter: blur(5px);
+            -webkit-filter: blur(5px);
+        
+            z-index: -1;
+            background-image: url('/images/background.jpg');
+            background-repeat: no-repeat;
+            background-position: center -356px;
+            background-size: cover;
+            background-color: transparent;
+        }
+
+        header.cube-background.cube-header-background {
+            visibility: hidden;
+            background-image: url('/images/background.jpg');
+            background-position: center -400px;
+        }
+    </style>
+    <header class="cube-background cube-header-background">
+        
+        <div class="cube-type">
+            <span class="cube-typed-title">logme&#39;s blog</span>
+            <span class="cube-typed-cursor">|</span>
+        </div>
+        
+    </header>
+    <div class="load-header-background"></div>
+    <script>
+        (function (window) {
+
+            window.headerModule = {}
+            window.headerModule.image = {
+                width: '2000',
+                height: '1414'
+            }
+
+        })(window)
+    </script>
+    
+    <div class="cube-content">
+        <div class="cube-left">
+            <div class="cube-article">
+    <h1 class="title">机器学习中的信息论</h1>
+    
+    <div class="cube-article-header">
+        <div class="cube-article-date">
+            <i class="cube-icon cube-icon-date" aria-hidden="true"></i>
+            <!-- moment.js对象 -->
+            2019-04-07
+        </div>
+        <div class="cube-article-tags">
+    <i class="cube-icon cube-icon-tag" aria-hidden="true"></i>
+    
+</div>
+    </div>
+    
+    <div class="cube-article-content cube-markdown">
+        
+        <h2 id="自信息"><a href="#自信息" class="headerlink" title="自信息"></a>自信息</h2><p>在机器学习中，信息论经常用来量化概率分布之间的相似性。</p>
+<p>信息论的基本想法是一个不太可能的时间居然发生了，要比一个非常可能发生的事件发生能够提供更多的信息。信息论量化信息的基本想法为：</p>
+<ol>
+<li>非常可能发生的事件信息量要比较少，确保能够发生的事件应该没有信息量。</li>
+<li>比较不可能发生的时间具有更高的信息量。</li>
+<li>独立事件具有的信息量是增量的。例如，投掷的硬币两次正面向上传递的信息量，应该是投掷一次硬币正面朝上信息量的两倍。</li>
+</ol>
+<p>为了满足上述的3个性质，定义一个$x$的<strong>自信息(self-information)</strong>为：</p>
+<p>​        $$I(x) = - log(P(x))​$$</p>
+<p>自信息的单位为<strong>奈特</strong>或者<strong>比特</strong>，分别对应底数为$e​$和$2​$时的信息量。一奈特是以$\frac{1}{e}​$的概率观测到一个事件时获得的信息量，通过比特度量的信息只是通过奈特度量信息的常数倍。</p>
+<h2 id="香农熵"><a href="#香农熵" class="headerlink" title="香农熵"></a>香农熵</h2><p>自信息只处理单个事件的信息。我们可以用香农熵(Shannon entropy)来对整个概率分布中的不确定性总量进行量化：</p>
+<p>​        $$H(x) = {E}<em>{x \sim P}[I(x)] = -E</em>{x \sim p}[log P(x)] $$</p>
+<p>香农熵也记做$H(P)​$，一个分布的香农熵是指遵循这个分布的时间所产生的期望信息总量。它给出了对一句概率分布$P​$生成的符号进行编码所需的比特数在平均意义上的下界。接近确定性分布具有较低的熵，接近均匀分布的概率具有较高的熵。当$x​$是连续的，香农熵被称为微分熵。</p>
+<h2 id="相对熵-KL-散度"><a href="#相对熵-KL-散度" class="headerlink" title="相对熵(KL-散度)"></a>相对熵(KL-散度)</h2><p>如果对于同一个随机变量$x​$有两个单独的概率分布$P(x)​$和$Q(x)​$，可以使用KL散度(Kullback-Leibler (KL) divergence)来衡量这两个分布的差异:</p>
+<p>​        $$\require{AMSmath} D_{KL}(P||Q)=E_{x \sim P}[log\frac{P(x)}{Q(x)}]=E_{x \sim P}[log P(x) - logQ(x)]$$</p>
+<p>在离散型随机变量的情况下，$KL​$散度衡量的是当我们使用一种被设计成能够使得概率分布$Q​$产生的消息长度最小的编码，发送包含由概率分布$P​$产生的消息时，所需要的额外信息量。</p>
+<p>$KL​$散度有很多很有用的性质，最重要的是它是非负的。$KL​$散度为0，当且仅当当且仅当$P​$和$Q​$在离散型随机变量的情况下是相同的分布，或者在连续性随机变量的情况下”几乎处处”相同的。因为$KL​$散度是非负的并且衡量的是两个分布之间的差异，它经常被用作分布之间的某种距离。然而，他并不是真正的距离，因为它不是对称的：对于某些$P​$和$Q​$，$D_{KL}(P||Q) \neq D_{KL}(Q||P)​$。这种非对称性意味着选择$D_{KL}(P||Q)​$和$D_{KL}(Q||P)​$影响很大。</p>
+<h2 id="交叉熵"><a href="#交叉熵" class="headerlink" title="交叉熵"></a>交叉熵</h2><p>交叉熵$H(P,Q)=-E_{x \sim P} log Q(x)​$和$KL​$散度关系密切，如下所示:</p>
+<p>​        $$ \begin{align<em>} H(P, Q) &amp;= -E_{x \sim P} logQ(x) \ &amp;= - E_{x \sim P} [log (Q(x))] + E_{x \sim P}[log (P(x))] - E_{x \sim P} [log(P(x))]\ &amp;=H(P) + D_{KL}(P||Q) \end{align</em>}​$$</p>
+<p>根据上式可知最小化交叉熵等价于最小化$KL​$散度，因此在机器学习中经常使用。</p>
+<h4 id="机器学习的过程"><a href="#机器学习的过程" class="headerlink" title="机器学习的过程"></a>机器学习的过程</h4><p>机器学习的过程就是希望在训练数据上<strong>模型学到的分布</strong>$P(model)$和<strong>真实数据的分布</strong>$P(real)$越接近越好，因此可以使其$KL$散度最小，但是我们没有真实数据的分布，只有<strong>训练数据的分布</strong>$P(training)$，因此我们希望模型<strong>学到的分布和训练数据的分布</strong>尽量相同。假设<strong>训练数据是从总体中独立同分布采样而来</strong>，那么我们可以利用最小化训练数据的经验误差来降低模型的泛化误差。也就是：</p>
+<ul>
+<li><p>最终目的是希望学到的<strong>模型的分布和真实分布一致</strong>：$P(model) \simeq P(real)$</p>
+</li>
+<li><p>真实分布对于我们来说不可能得到，因此我们只好<strong>假设训练数据是从真实数据独立同分布采样</strong>而来，也就有$P(training) \simeq P(real)​$</p>
+</li>
+<li><p>如果我们的<strong>模型和训练数据的分布达成一致</strong>即$P(training) \simeq P(real)$则我们就得到了</p>
+<p>​        $$P(model) \simeq P(training) \simeq P(real)​$$     </p>
+</li>
+</ul>
+
+    </div>
+</div>
+
+<div class="cube-article-nav">
+    <ul>
+        
+        
+        <li class="next">
+            <a href="/2019/04/03/ssd/">
+                ssd
+                <i class="cube-icon cube-next" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+<!-- TODO 根据theme.comment的内容进行入口选择 -->
+
+    <!-- 因为gitment里面也有gitment-container，所以这里就改为gitment-comment -->
+<div class="gitment-comment">
+    <div id="container"></div>
+</div>
+<link rel="stylesheet" href="https://log4me.github.io/css/gitment.css">
+<script src="https://log4me.github.io/js/gitment.js"></script>
+<script>
+    var gitment = new Gitment({
+        // id default is location.href
+        owner: 'log4me',
+        repo: 'log4me.github.io',
+        oauth: {
+            client_id: '9e1e30eb87bd243c592c',
+            client_secret: '559c1909a5859a8587dd34bf78947d87cc115e7b',
+        },
+    })
+    gitment.render('container')
+</script>
+
+    
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+<!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+        </div>
+        <div class="cube-right">
+            
+
+<div class="cube-search cube-sidebar" id="cube-search">
+    <div class="search-container">
+        <input type="text" placeholder="Search" class="cube-search-input" id="cube-search-input">
+        <i class="cube-icon cube-icon-search cube-search-submit" aria-hidden="true"></i>
+    </div>
+    <!-- TODO 通过给window赋一个全局变量，通过脚本赋值 -->
+</div>
+<script>
+    (function (window) {
+        'use strict';
+        window.searchModule = {}
+        window.searchModule.JSONUrl = '/content.json'
+        window.searchModule.rootUrl = '/'
+    })(window)
+</script>
+<div class="cube-search-form">
+    <div class="cube-search-control">
+        <input type="text" placeholder="Search" class="search-input">
+        <a class="close-button">
+            <i class="cube-icon cube-close" aria-hidden="true"></i>
+        </a>
+    </div>
+    <div class="cube-search-result"></div>
+</div>
+
+
+<div class="cube-author cube-sidebar" id="cube-author">
+    
+    
+    <style>
+        @media(min-width: 768px) {
+            .cube-author img {
+                margin-top: 40px;
+                margin-bottom: 10px;
+            }
+        }
+        @media(max-width: 1120px) and (min-width: 768px) {
+            .cube-author img {
+                width: 128px;
+                height: 128px;
+            }
+        }
+        @media(min-width: 1120px) {
+            .cube-author img {
+                width: 160px;
+                height: 160px;
+            }
+        }
+    </style>
+    
+    <img src="/images/avatar.jpg" alt="avatar" class="cube-avatar">
+    
+    
+    <span>yt.zhang</span>
+    
+    
+    <a title="log what I am interested.">log what I am interested.</a>
+    
+    <div class="count">
+        <a class="count articles"><span>6</span>Article</a>
+        <a class="count tags"><span>0</span>Tags</a>
+        <a class="count categories"><span>0</span>Categories</a>
+    </div>
+</div>
+
+
+
+<div class="cube-music cube-sidebar" id="cube-music">
+    <div class="cube-player aplayer" id="cube-player"></div>
+</div>
+<script>
+    (function (window) {
+        window.musicModule = {}
+        window.musicModule.musicConfig = '{"narrow":false,"autoplay":false,"showlrc":3,"theme":"#b7daff","mutex":true,"mode":"circulation","preload":"auto","listmaxheight":"513px","music":[{"title":"月灯りふんわり落ちてく","author":"小川七生","url":"http://log4me.github.io/images/music/%E6%9C%88%E7%81%AF%E3%82%8A%E3%81%B5%E3%82%93%E3%82%8F%E3%82%8A%E8%90%BD%E3%81%A1%E3%81%A6%E3%81%8F%E3%82%8B%E5%A4%9C.mp3","lrc":"https://log4me.github.io/lrc/月灯りふんわり落ちてくる夜.lrc","pic":"http://log4me.github.io/images/music/%E6%9C%88%E7%81%AF%E3%82%8A%E3%81%B5%E3%82%93%E3%82%8F%E3%82%8A%E8%90%BD%E3%81%A1%E3%81%A6%E3%81%8F%E3%82%8B%E5%A4%9C.jpg"}]}'
+        window.musicModule.lrcConfig = {
+            open: 'Open Lyrics',
+            close: 'Close Lyrics'
+        }
+    })(window)
+</script>
+
+
+
+<div class="cube-recent-posts cube-sidebar" id="cube-recent-posts">
+    <div class="title">
+        <a>Recent Posts</a>
+    </div>
+    <ul class="list">
+        
+        
+        <li>
+            <!-- TODO 如果文章要显示图片，那么在front-matter上添加preview属性(url or path) -->
+            
+            <div class="normal">
+                <p class="index first">
+                    <span>1</span>
+                </p>
+                <p class="title">
+                    <a href="/2019/04/07/info-theory-in-ml/" title="机器学习中的信息论">机器学习中的信息论</a>
+                </p>
+            </div>
+            
+        </li>
+        
+        
+        
+        <li>
+            <div class="normal">
+                <p class="index">
+                    <span>2</span>
+                </p>
+                <p class="title">
+                    <a href="/2019/04/03/ssd/" title="ssd">ssd</a>
+                </p>
+            </div>
+        </li>
+        
+        
+        
+        <li>
+            <div class="normal">
+                <p class="index">
+                    <span>3</span>
+                </p>
+                <p class="title">
+                    <a href="/2019/04/01/faster-rcnn/" title="faster-rcnn">faster-rcnn</a>
+                </p>
+            </div>
+        </li>
+        
+        
+        
+        <li>
+            <div class="normal">
+                <p class="index">
+                    <span>4</span>
+                </p>
+                <p class="title">
+                    <a href="/2019/04/01/hello-world/" title="Hello World">Hello World</a>
+                </p>
+            </div>
+        </li>
+        
+        
+        
+        <li>
+            <div class="normal">
+                <p class="index">
+                    <span>5</span>
+                </p>
+                <p class="title">
+                    <a href="/2019/03/21/focal-loss/" title="Focal Loss for Dense Object Detection">Focal Loss for Dense Object Detection</a>
+                </p>
+            </div>
+        </li>
+        
+        
+    </ul>
+</div>
+
+
+
+
+
+
+
+<div class="cube-links cube-sidebar" id="cube-links">
+    <div class="title">
+        <a>Links</a>
+    </div>
+    <ul class="list">
+        
+        <li>
+            
+            
+            <img src="/images/avatar.jpg">
+            
+            <a href="https://github.com/log4me" target="_blank">GitHub</a>
+        </li>
+        
+    </ul>
+</div>
+
+
+
+<div class="cube-friend-links cube-sidebar" id="cube-friend-links">
+    <div class="title">
+        <a>Friend Links</a>
+    </div>
+    <ul class="list">
+        
+        <li>
+            <!-- TODO change avatar.png to friend.png-->
+            <img src="/images/friend_links.jpg ">
+            <a href="https://mt-cly.github.io" target="_blank">李先森的CV小屋</a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+    </div>
+</div>
+<footer class="cube-footer">
+    
+© 2017 yt.zhang
+
+<br>
+Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>.&nbsp;Theme by <a href="https://github.com/ZEROKISEKI" target="_blank">AONOSORA</a>
+</footer>
+<!-- inject:script -->
+<script src="/js/script.js"></script>
+<!-- endinject -->
+<div class="cube-loading out"></div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</body>
+</html>
