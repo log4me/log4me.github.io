@@ -186,26 +186,23 @@
 <li>比较不可能发生的时间具有更高的信息量。</li>
 <li>独立事件具有的信息量是增量的。例如，投掷的硬币两次正面向上传递的信息量，应该是投掷一次硬币正面朝上信息量的两倍。</li>
 </ol>
-<p>为了满足上述的3个性质，定义一个$x$的<strong>自信息(self-information)</strong>为：        $$I(x) = - log(P(x))$$</p>
+<p>为了满足上述的3个性质，定义一个$x$的<strong>自信息(self-information)</strong>为：        <script type="math/tex">I(x) = - log(P(x))</script></p>
 <p>自信息的单位为<strong>奈特</strong>或者<strong>比特</strong>，分别对应底数为$e​$和$2​$时的信息量。一奈特是以$\frac{1}{e}​$的概率观测到一个事件时获得的信息量，通过比特度量的信息只是通过奈特度量信息的常数倍。</p>
 <h2 id="香农熵"><a href="#香农熵" class="headerlink" title="香农熵"></a>香农熵</h2><p>自信息只处理单个事件的信息。我们可以用香农熵(Shannon entropy)来对整个概率分布中的不确定性总量进行量化：</p>
-<p>$$H(x) = E_{x \sim P}[I(x)] = -E_{x \sim p}[log P(x)] $$</p>
-<p>香农熵也记做$H(P)​$，一个分布的香农熵是指遵循这个分布的时间所产生的期望信息总量。它给出了对一句概率分布$P​$生成的符号进行编码所需的比特数在平均意义上的下界。接近确定性分布具有较低的熵，接近均匀分布的概率具有较高的熵。当$x​$是连续的，香农熵被称为微分熵。</p>
+<script type="math/tex; mode=display">H(x) = E_{x \sim P}[I(x)] = -E_{x \sim p}[log P(x)]</script><p>香农熵也记做$H(P)​$，一个分布的香农熵是指遵循这个分布的时间所产生的期望信息总量。它给出了对一句概率分布$P​$生成的符号进行编码所需的比特数在平均意义上的下界。接近确定性分布具有较低的熵，接近均匀分布的概率具有较高的熵。当$x​$是连续的，香农熵被称为微分熵。</p>
 <h2 id="相对熵-KL-散度"><a href="#相对熵-KL-散度" class="headerlink" title="相对熵(KL-散度)"></a>相对熵(KL-散度)</h2><p>如果对于同一个随机变量$x​$有两个单独的概率分布$P(x)​$和$Q(x)​$，可以使用KL散度(Kullback-Leibler (KL) divergence)来衡量这两个分布的差异:</p>
-<p>$$D_{KL}(P||Q)=\mathbb E_{x \sim P}[log\frac{P(x)}{Q(x)}]=E_{x \sim P}[log P(x) - logQ(x)]$$</p>
-<p>在离散型随机变量的情况下，$KL​$散度衡量的是当我们使用一种被设计成能够使得概率分布$Q​$产生的消息长度最小的编码，发送包含由概率分布$P​$产生的消息时，所需要的额外信息量。</p>
+<script type="math/tex; mode=display">D_{KL}(P||Q)=\mathbb E_{x \sim P}[log\frac{P(x)}{Q(x)}]=E_{x \sim P}[log P(x) - logQ(x)]</script><p>在离散型随机变量的情况下，$KL​$散度衡量的是当我们使用一种被设计成能够使得概率分布$Q​$产生的消息长度最小的编码，发送包含由概率分布$P​$产生的消息时，所需要的额外信息量。</p>
 <p>$KL​$散度有很多很有用的性质，最重要的是它是非负的。$KL​$散度为0，当且仅当当且仅当$P​$和$Q​$在离散型随机变量的情况下是相同的分布，或者在连续性随机变量的情况下”几乎处处”相同的。因为$KL​$散度是非负的并且衡量的是两个分布之间的差异，它经常被用作分布之间的某种距离。然而，他并不是真正的距离，因为它不是对称的：对于某些$P​$和$Q​$，$D_{KL}(P||Q) \neq D_{KL}(Q||P)​$。这种非对称性意味着选择$D_{KL}(P||Q)​$和$D_{KL}(Q||P)​$影响很大。</p>
 <h2 id="交叉熵"><a href="#交叉熵" class="headerlink" title="交叉熵"></a>交叉熵</h2><p>交叉熵$H(P,Q)=-E_{x \sim P} log Q(x)$和$KL$散度关系密切，如下所示:</p>
-<p>$$ \begin{align} H(P, Q) &amp;= -E_{x \sim P} logQ(x) \ &amp;= - E_{x \sim P} [log (Q(x))] + E_{x \sim P}[log (P(x))] - E_{x \sim P} [log(P(x))]\ &amp;=H(P) + D_{KL}(P||Q) \end{align}$$</p>
-<p>根据上式可知最小化交叉熵等价于最小化$KL​$散度，因此在机器学习中经常使用。</p>
+<script type="math/tex; mode=display">\begin{align*} H(P, Q) &= -E_{x \sim P} logQ(x) \\ &= - E_{x \sim P} [log (Q(x))] + E_{x \sim P}[log (P(x))] - E_{x \sim P} [log(P(x))]\\ &=H(P) + D_{KL}(P||Q) \end{align*}</script><p>根据上式可知最小化交叉熵等价于最小化$KL​$散度，因此在机器学习中经常使用。</p>
 <h4 id="机器学习的过程"><a href="#机器学习的过程" class="headerlink" title="机器学习的过程"></a>机器学习的过程</h4><p>机器学习的过程就是希望在训练数据上<strong>模型学到的分布</strong>$P(model)​$和<strong>真实数据的分布</strong>$P(real)​$越接近越好，因此可以使其$KL​$散度最小，但是我们没有真实数据的分布，只有<strong>训练数据的分布</strong>$P(training)​$，因此我们希望模型<strong>学到的分布和训练数据的分布</strong>尽量相同。假设<strong>训练数据是从总体中独立同分布采样而来</strong>，那么我们可以利用最小化训练数据的经验误差来降低模型的泛化误差。也就是：</p>
 <ul>
-<li><p>最终目的是希望学到的<strong>模型的分布和真实分布一致</strong>：$P(model) \simeq P(real)$</p>
+<li><p>最终目的是希望学到的<strong>模型的分布和真实分布一致</strong>：$P(model) \simeq P(real)​$</p>
 </li>
 <li><p>真实分布对于我们来说不可能得到，因此我们只好<strong>假设训练数据是从真实数据独立同分布采样</strong>而来，也就有$P(training) \simeq P(real)​$</p>
 </li>
 <li><p>如果我们的<strong>模型和训练数据的分布达成一致</strong>即$P(training) \simeq P(real)$则我们就得到了</p>
-<p>​        $$P(model) \simeq P(training) \simeq P(real)​$$     </p>
+<p>​        <script type="math/tex">P(model) \simeq P(training) \simeq P(real)​</script>     </p>
 </li>
 </ul>
 
